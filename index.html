@@ -525,6 +525,17 @@
                 </div>
             </div>
 
+            <div class="drink-item" data-drink="la-sabrina">
+                <div class="drink-name">🌸 La Sabrina</div>
+                <div class="drink-description">Fraîcheur rosée, le cocktail signature du terrier</div>
+                <div class="drink-ingredients">Limonade fraîche, jus de cranberry, glaçons</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('la-sabrina')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('la-sabrina')">+</button>
+                </div>
+            </div>
+
             <div class="drink-item" data-drink="blue-lagoon">
                 <div class="drink-name">🌊 Blue Lagoon</div>
                 <div class="drink-description">Évasion tropicale bleue comme un ciel d'été</div>
@@ -728,7 +739,7 @@
             };
 
             // Envoyer à Discord (si webhook configuré)
-            if (discordWebhookUrl !== 'TON_WEBHOOK_DISCORD_ICI') {
+            if (discordWebhookUrl !== 'https://discord.com/api/webhooks/1396155046760284260/zT0k641y9_lVmuSHkkVViVJjXkgtz4x5CbGP6wn6Oqx8JqOf9hchzZ2Axz6e_EF06JUl') {
                 fetch(discordWebhookUrl, {
                     method: 'POST',
                     headers: {
