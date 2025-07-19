@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chez les Poupounitos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            min-height: 100vh;
+            padding: 10px;
+            color: #2F1B14;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #F5F5DC;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            overflow: hidden;
+            border: 3px solid #8B4513;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #D2691E 0%, #CD853F 100%);
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 3px solid #8B4513;
+            position: relative;
+        }
+
+        .header::before {
+            content: "🏠";
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 20px;
+        }
+
+        .header::after {
+            content: "🍺";
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 20px;
+            animation: wiggle 2s infinite;
+        }
+
+        .restaurant-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2F1B14;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #4A4A4A;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .welcome {
+            font-size: 12px;
+            color: #2F1B14;
+            background: rgba(255,255,255,0.3);
+            padding: 8px 12px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .menu-section {
+            padding: 20px;
+            border-bottom: 2px dashed #D2691E;
+        }
+
+        .menu-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #8B4513;
+            margin-bottom: 15px;
+            text-align: center;
+            padding: 10px;
+            background: linear-gradient(135deg, #F4A460 0%, #DEB887 100%);
+            border-radius: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .section-subtitle {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+
+        .drink-item {
+            background: #FAEBD7;
+            border: 2px solid #D2691E;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .drink-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-color: #8B4513;
+        }
+
+        .drink-item.selected {
+            background: #E6F3FF;
+            border-color: #4169E1;
+            transform: scale(1.02);
+        }
+
+        .drink-item.out-of-stock {
+            opacity: 0.6;
+            background: #F0F0F0;
+            border-color: #999;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .drink-item.out-of-stock::before {
+            content: "RUPTURE";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #FF6B6B;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: bold;
+            transform: rotate(15deg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .drink-item.out-of-stock .drink-name {
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .drink-item.out-of-stock .drink-description,
+        .drink-item.out-of-stock .drink-ingredients {
+            color: #AAA;
+        }
+
+        .drink-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #8B4513;
+            margin-bottom: 8px;
+        }
+
+        .drink-description {
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .drink-ingredients {
+            font-size: 12px;
+            color: #8B4513;
+            background: rgba(139, 69, 19, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border-left: 3px solid #D2691E;
+            margin-top: 8px;
+        }
+
+        .drink-ingredients::before {
+            content: "🥄 ";
+            margin-right: 5px;
+        }
+
+        .quantity-controls {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #D2691E;
+        }
+
+        .quantity-controls.show {
+            display: flex;
+        }
+
+        .quantity-btn {
+            background: #8B4513;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background: #A0522D;
+            transform: scale(1.1);
+        }
+
+        .quantity-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: #8B4513;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .cart-summary {
+            background: #8B4513;
+            color: white;
+            padding: 20px;
+            position: sticky;
+            bottom: 0;
+            text-align: center;
+        }
+
+        .cart-count {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .order-btn {
+            background: linear-gradient(135deg, #32CD32 0%, #228B22 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .order-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #32CD32;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .payment-content {
+            background: #F5F5DC;
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid #8B4513;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        .payment-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #8B4513;
+            margin-bottom: 20px;
+        }
+
+        .payment-amount {
+            font-size: 48px;
+            font-weight: bold;
+            color: #32CD32;
+            margin: 20px 0;
+        }
+
+        .payment-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .payment-btn {
+            background: #8B4513;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+
+        .payment-btn:hover {
+            background: #A0522D;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        .marmotte-icon {
+            font-size: 24px;
+            margin: 0 10px;
+            animation: wiggle 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="restaurant-name">Chez les Poupounitos</div>
+            <div class="subtitle">Restaurant du Terrier</div>
+            <div class="welcome">Bienvenue dans notre cocon douillet, chers poupounes et poupounettes !</div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">SOFT</div>
+            <div class="section-subtitle">Les Classiques du Terrier</div>
+            
+            <div class="drink-item" data-drink="coca">
+                <div class="drink-name">🥤 Coca</div>
+                <div class="drink-description">Le pétillant qui réveille même les marmottes en hibernation</div>
+                <div class="drink-ingredients">Coca-Cola classique, glaçons, rondelle de citron</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('coca')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('coca')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item" data-drink="ice-tea">
+                <div class="drink-name">🧊 Ice Tea</div>
+                <div class="drink-description">Fraîcheur montagnarde, parfait pour les après-midis cocooning</div>
+                <div class="drink-ingredients">Thé noir infusé, sucre de canne, citron frais, glaçons</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('ice-tea')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('ice-tea')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item out-of-stock" data-drink="citronnade">
+                <div class="drink-name">🍋 Citronnade maison</div>
+                <div class="drink-description">Pressée avec amour par nos petites pattes expertes</div>
+                <div class="drink-ingredients">Citrons pressés, sucre, eau pétillante, menthe fraîche</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('citronnade')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('citronnade')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item" data-drink="eau-citronnee">
+                <div class="drink-name">💧 Eau citronnée maison</div>
+                <div class="drink-description">L'hydratation version poupounitos, légère et rafraîchissante</div>
+                <div class="drink-ingredients">Eau plate, jus de citron frais, rondelles de citron</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('eau-citronnee')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('eau-citronnee')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item" data-drink="limonade">
+                <div class="drink-name">🍋 Limonade</div>
+                <div class="drink-description">Bulles citronnées pour les poupounes rafraîchies</div>
+                <div class="drink-ingredients">Limonade artisanale, glaçons, rondelle de citron</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('limonade')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('limonade')">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">BIÈRES</div>
+            <div class="section-subtitle">La Cave du Terrier</div>
+            
+            <div class="drink-item out-of-stock" data-drink="kasteel-rouge">
+                <div class="drink-name">🍺 Kasteel Rouge</div>
+                <div class="drink-description">Rubis des Flandres, pour les connaisseurs du terrier</div>
+                <div class="drink-ingredients">Bière rouge belge 8%, arômes de cerise, malts caramélisés</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('kasteel-rouge')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('kasteel-rouge')">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">APÉRITIFS</div>
+            <div class="section-subtitle">Les Spiritueux du Terrier</div>
+            
+            <div class="drink-item" data-drink="ricard">
+                <div class="drink-name">🌟 Ricard</div>
+                <div class="drink-description">L'anis qui réveille l'esprit poupounitos du Sud</div>
+                <div class="drink-ingredients">Ricard, eau fraîche, glaçons</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('ricard')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('ricard')">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">VINS</div>
+            <div class="section-subtitle">La Cave Précieuse du Terrier</div>
+            
+            <div class="drink-item" data-drink="chardonnay">
+                <div class="drink-name">🍷 Chardonnay</div>
+                <div class="drink-description">Élégance bourguignonne pour les grandes occasions</div>
+                <div class="drink-ingredients">Vin blanc Chardonnay, température cave</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('chardonnay')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('chardonnay')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item" data-drink="jurancon">
+                <div class="drink-name">🍷 Jurançon</div>
+                <div class="drink-description">Trésor des Pyrénées, douceur montagnarde</div>
+                <div class="drink-ingredients">Vin blanc Jurançon, température cave</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('jurancon')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('jurancon')">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">COCKTAILS</div>
+            <div class="section-subtitle">Spécialités de la Tanière</div>
+            
+            <div class="drink-item" data-drink="cosmopolitan">
+                <div class="drink-name">🍸 Cosmopolitan</div>
+                <div class="drink-description">Chic et rosé, pour les soirées glamour au terrier</div>
+                <div class="drink-ingredients">Vodka, liqueur de cranberry, jus de citron vert, triple sec</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('cosmopolitan')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('cosmopolitan')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item" data-drink="jager-bomb">
+                <div class="drink-name">💥 Jäger Bomb</div>
+                <div class="drink-description">L'énergie des marmottes sauvages, attention réveil garanti !</div>
+                <div class="drink-ingredients">Jägermeister, Red Bull, glaçons</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('jager-bomb')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('jager-bomb')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item out-of-stock" data-drink="moscow-mule">
+                <div class="drink-name">🐴 Moscow Mule</div>
+                <div class="drink-description">Voyage express vers l'Est, cuivre et caractère</div>
+                <div class="drink-ingredients">Vodka, ginger beer, jus de citron vert, menthe</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('moscow-mule')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('moscow-mule')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item out-of-stock" data-drink="london-mule">
+                <div class="drink-name">🎩 London Mule</div>
+                <div class="drink-description">Élégance britannique avec un twist poupounitos</div>
+                <div class="drink-ingredients">Gin, ginger beer, jus de citron, concombre</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('london-mule')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('london-mule')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item out-of-stock" data-drink="jamaican-mule">
+                <div class="drink-name">🏝️ Jamaïcan Mule</div>
+                <div class="drink-description">Soleil des Caraïbes dans votre tanière</div>
+                <div class="drink-ingredients">Rhum ambré, ginger beer, jus de citron vert, ananas</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('jamaican-mule')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('jamaican-mule')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item out-of-stock" data-drink="mojito">
+                <div class="drink-name">🌿 Mojito du Terrier</div>
+                <div class="drink-description">Menthe fraîche et secrets de marmottes</div>
+                <div class="drink-ingredients">Rhum blanc, menthe fraîche, sucre roux, citron vert, eau pétillante</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('mojito')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('mojito')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item" data-drink="blue-lagoon">
+                <div class="drink-name">🌊 Blue Lagoon</div>
+                <div class="drink-description">Évasion tropicale bleue comme un ciel d'été</div>
+                <div class="drink-ingredients">Vodka, Curaçao bleu, limonade, glaçons, cerise</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('blue-lagoon')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('blue-lagoon')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item" data-drink="cuba-libre">
+                <div class="drink-name">🇨🇺 Cuba Libre</div>
+                <div class="drink-description">Liberté cubaine dans votre verre, viva la vida !</div>
+                <div class="drink-ingredients">Rhum blanc, Coca-Cola, jus de citron vert, glaçons</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('cuba-libre')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('cuba-libre')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item" data-drink="gin-tonic">
+                <div class="drink-name">🍸 Gin Tonic</div>
+                <div class="drink-description">Classique britannique, sophistication poupounitos</div>
+                <div class="drink-ingredients">Gin premium, tonic water, rondelle de citron, glaçons</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('gin-tonic')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('gin-tonic')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item" data-drink="sex-on-the-beach">
+                <div class="drink-name">🏖️ Sex on the Beach</div>
+                <div class="drink-description">Plaisir fruité des vacances, version terrier</div>
+                <div class="drink-ingredients">Vodka, rhum blanc, liqueur de pêche, jus de cranberry, ananas</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('sex-on-the-beach')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('sex-on-the-beach')">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">BOISSONS CHAUDES</div>
+            <div class="section-subtitle">Réconfort du Terrier</div>
+            
+            <div class="drink-item" data-drink="cafe">
+                <div class="drink-name">☕ Café</div>
+                <div class="drink-description">L'énergie pure des marmottes matinales</div>
+                <div class="drink-ingredients">Café arabica fraîchement moulu, eau filtrée</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('cafe')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('cafe')">+</button>
+                </div>
+            </div>
+
+            <div class="drink-item" data-drink="cafe-glace">
+                <div class="drink-name">🧊 Café glacé</div>
+                <div class="drink-description">Fraîcheur caféinée pour les après-midis d'été au terrier</div>
+                <div class="drink-ingredients">Café arabica refroidi, glaçons, sucre de canne, crème</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="decreaseQuantity('cafe-glace')">-</button>
+                    <div class="quantity-display">1</div>
+                    <button class="quantity-btn" onclick="increaseQuantity('cafe-glace')">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cart-summary">
+            <div class="cart-count">
+                <span class="marmotte-icon">🐹</span>
+                <span id="cart-text">Sélectionnez vos boissons</span>
+                <span class="marmotte-icon">🐹</span>
+            </div>
+            <button class="order-btn" id="order-btn" onclick="showPayment()" disabled>
+                Commander au Terrier
+            </button>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <div class="payment-modal" id="payment-modal">
+        <div class="payment-content">
+            <div class="payment-title">Addition</div>
+            <div class="payment-amount">0 €</div>
+            <div class="payment-message">C'est gratuit pour les invités ! 😊</div>
+            <div style="margin: 20px 0;">
+                <span class="marmotte-icon">🐹</span>
+                <span>Générosité de la tanière</span>
+                <span class="marmotte-icon">🐹</span>
+            </div>
+            <button class="payment-btn" onclick="confirmOrder()">Confirmer la commande</button>
+            <button class="payment-btn" onclick="closePayment()">Retour</button>
+        </div>
+    </div>
+
+    <script>
+        let cart = {};
+        let totalItems = 0;
+
+        // Gestion des clics sur les boissons
+        document.querySelectorAll('.drink-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Vérifier si la boisson est en rupture
+                if (this.classList.contains('out-of-stock')) {
+                    showNotification('⚠️ Cette boisson est en rupture de stock !');
+                    return;
+                }
+                
+                const drinkId = this.getAttribute('data-drink');
+                if (!cart[drinkId]) {
+                    cart[drinkId] = 1;
+                    this.classList.add('selected');
+                    this.querySelector('.quantity-controls').classList.add('show');
+                    updateCart();
+                }
+            });
+        });
+
+        function increaseQuantity(drinkId) {
+            const drinkItem = document.querySelector(`[data-drink="${drinkId}"]`);
+            if (drinkItem.classList.contains('out-of-stock')) {
+                showNotification('⚠️ Cette boisson est en rupture de stock !');
+                return;
+            }
+            
+            cart[drinkId] = (cart[drinkId] || 0) + 1;
+            updateQuantityDisplay(drinkId);
+            updateCart();
+        }
+
+        function decreaseQuantity(drinkId) {
+            if (cart[drinkId] > 1) {
+                cart[drinkId]--;
+                updateQuantityDisplay(drinkId);
+            } else {
+                delete cart[drinkId];
+                const drinkItem = document.querySelector(`[data-drink="${drinkId}"]`);
+                drinkItem.classList.remove('selected');
+                drinkItem.querySelector('.quantity-controls').classList.remove('show');
+            }
+            updateCart();
+        }
+
+        function updateQuantityDisplay(drinkId) {
+            const quantityDisplay = document.querySelector(`[data-drink="${drinkId}"] .quantity-display`);
+            quantityDisplay.textContent = cart[drinkId] || 1;
+        }
+
+        function updateCart() {
+            totalItems = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+            const cartText = document.getElementById('cart-text');
+            const orderBtn = document.getElementById('order-btn');
+            
+            if (totalItems === 0) {
+                cartText.textContent = 'Sélectionnez vos boissons';
+                orderBtn.disabled = true;
+            } else {
+                cartText.textContent = `${totalItems} boisson${totalItems > 1 ? 's' : ''} sélectionnée${totalItems > 1 ? 's' : ''}`;
+                orderBtn.disabled = false;
+            }
+        }
+
+        function showPayment() {
+            document.getElementById('payment-modal').style.display = 'flex';
+        }
+
+        function closePayment() {
+            document.getElementById('payment-modal').style.display = 'none';
+        }
+
+        function confirmOrder() {
+            // Créer la commande
+            const orderDetails = Object.entries(cart).map(([drink, qty]) => {
+                const drinkName = document.querySelector(`[data-drink="${drink}"] .drink-name`).textContent;
+                return `${qty}x ${drinkName}`;
+            }).join(', ');
+
+            const timestamp = new Date().toLocaleString('fr-FR');
+            
+            // Configuration Discord Webhook (à remplacer par ton URL)
+            const discordWebhookUrl = 'TON_WEBHOOK_DISCORD_ICI';
+            
+            const discordMessage = {
+                embeds: [{
+                    title: "🐹 Nouvelle commande chez les Poupounitos !",
+                    description: `**Commande :** ${orderDetails}\n**Heure :** ${timestamp}\n**Total :** ${totalItems} boisson${totalItems > 1 ? 's' : ''}`,
+                    color: 9064207, // Couleur marron
+                    thumbnail: {
+                        url: "https://em-content.zobj.net/thumbs/120/twitter/348/beer-mug_1f37a.png"
+                    },
+                    footer: {
+                        text: "Restaurant du Terrier"
+                    }
+                }]
+            };
+
+            // Envoyer à Discord (si webhook configuré)
+            if (discordWebhookUrl !== 'TON_WEBHOOK_DISCORD_ICI') {
+                fetch(discordWebhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(discordMessage)
+                }).catch(error => {
+                    console.log('Erreur Discord:', error);
+                    // Fallback vers console si Discord échoue
+                    console.log('NOUVELLE COMMANDE:', {
+                        timestamp: timestamp,
+                        items: cart,
+                        details: orderDetails,
+                        total: totalItems
+                    });
+                });
+            } else {
+                // Mode développement - affichage console
+                console.log('🐹 NOUVELLE COMMANDE POUPOUNITOS:');
+                console.log('Détails:', orderDetails);
+                console.log('Heure:', timestamp);
+                console.log('Items:', cart);
+                console.log('📝 Pour activer Discord: remplace TON_WEBHOOK_DISCORD_ICI par ton URL webhook');
+            }
+
+            // Afficher la notification à l'utilisateur
+            showNotification(`Commande envoyée ! 🎉\n${orderDetails}`);
+
+            // Réinitialiser
+            cart = {};
+            totalItems = 0;
+            document.querySelectorAll('.drink-item').forEach(item => {
+                item.classList.remove('selected');
+                item.querySelector('.quantity-controls').classList.remove('show');
+            });
+            updateCart();
+            closePayment();
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Notification API (si supportée)
+        if ('Notification' in window) {
+            Notification.requestPermission();
+        }
+
+        // Fonction pour envoyer une vraie notification
+        function sendRealNotification(message) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('Chez les Poupounitos', {
+                    body: message,
+                    icon: '🐹'
+                });
+            }
+        }
+    </script>
+</body>
+</html>
